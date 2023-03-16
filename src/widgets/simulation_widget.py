@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from PyQt5.QtWidgets import QHBoxLayout, QWidget
 
+from utils import RegionShape
+
 
 class SimulationCanvas(FigureCanvasQTAgg):
     def __init__(self):
@@ -41,7 +43,7 @@ class SimulationWidget(QWidget):
 
     def plot_state(self, width, heigth, shape, agents):
         self.canvas.clear_plot()
-        if shape == "rectangle":
+        if shape == RegionShape.RECTANGLE.value:
             self.canvas.plot_rectangle(width, heigth)
         else:
             raise NotImplementedError
