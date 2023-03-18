@@ -9,7 +9,7 @@ from world.agent import Agent
 class Region:
     id_obj = itertools.count()
 
-    def __init__(self, name, vertices, color, num_agents):
+    def __init__(self, name, vertices, color, num_healthy_agents, sick_agents_arr, viruses):
         self.id = next(Region.id_obj)
         self.vertices = vertices
         self.name = name
@@ -17,7 +17,8 @@ class Region:
         self.agents_pos = None
         self.agents = []
 
-        self._generate_agents(num_agents)
+        self._generate_agents(num_healthy_agents)
+        self._generate_sick_agents(sick_agents_arr, viruses)
         self.make_pos_dir()
 
     def step(self):
@@ -38,7 +39,7 @@ class Region:
                 neighborhood += self.agents_pos.get((i, j), [])
         return [n for n in neighborhood if n != agent]
 
-    def is_in_map_area(self, point):
+    def is_in_region_area(self, point):
         """
         Check if a point is inside a polygon defined by an array of vertices.
 
@@ -69,6 +70,20 @@ class Region:
             pos = self._generate_agent_pos_inside_region()
             self.agents.append(Agent(pos, self))
 
+    def _generate_sick_agents(self, sick_agents_arr, viruses):
+        # In case if we want to create two viruses per simulation
+        for sick_agents in sick_agents_arr:
+            virus = next(virus for virus in viruses if virus.name == sick_agents[1])
+            for _ in range(int(sick_agents[0])):
+                pos = self._generate_agent_pos_inside_region()
+                self.agents.append(Agent(pos,
+                                         self,
+                                         is_sick=True,
+                                         sick_time=virus.sick_time,
+                                         virus_name=virus.name,
+                                         remaining_immunity=virus.immunity_time)
+                                   )
+
     def _generate_agent_pos_inside_region(self):
         # Create a polygon object from the vertices
         polygon = Polygon(np.array(self.vertices))
@@ -87,3 +102,5 @@ class Region:
             if polygon.contains(point):
                 break
         return x, y
+
+

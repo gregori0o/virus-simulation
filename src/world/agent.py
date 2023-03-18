@@ -6,15 +6,16 @@ from utils import Direction
 
 
 class Agent:
-    def __init__(self, pos: Tuple, map, velocity: int = 4):
+    def __init__(self, pos: Tuple, region, is_sick=False, sick_time=0, virus_name=None, remaining_immunity=0, velocity: int = 4):
         self.pos = pos
         self.age = 0
-        self.is_sick = False
-        self.sick_time = 0
-        self.remaining_immunity = 0
+        self.is_sick = is_sick
+        self.sick_time = sick_time
+        self.virus_name = virus_name
+        self.remaining_immunity = (remaining_immunity, virus_name)  # (immunity, last_virus_name)
         self.velocity = velocity
         self.direction = np.random.choice(Direction.list())
-        self.map = map
+        self.region = region
 
     def step(self):
         """Try to make step. If it goes off the map, turn right (change self.direction to next). If it cannot make step, stays in place."""
@@ -41,8 +42,11 @@ class Agent:
                 case Direction.LEFT.value:
                     delta_x = (np.abs(turn) - 2) * self.velocity // 2
                     delta_y = turn * self.velocity // 2
-            if self.map.is_in_map_area([x + delta_x, y + delta_y]):
+            if self.region.is_in_region_area([x + delta_x, y + delta_y]):
                 break
             delta_x = delta_y = 0
             self.direction = Direction.next(self.direction)
         self.pos = (x + delta_x, y + delta_y)
+
+    def is_agent_sick(self):
+        return self.is_sick
