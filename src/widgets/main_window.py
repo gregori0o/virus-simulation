@@ -4,7 +4,7 @@ from widgets.main_widget import MainWidget
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
         self.setWindowTitle("Virus Simulation")
         self.setGeometry(0, 0, 1200, 600)
@@ -19,6 +19,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self._centralWidget)
         self._centralWidget.setLayout(self.generalLayout)
 
-        self.generalLayout.addWidget(MainWidget())
+        self.generalLayout.addWidget(MainWidget(config["main_widget"]))
 
         self.show()

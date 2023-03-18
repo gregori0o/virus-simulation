@@ -1,18 +1,23 @@
-import numpy as np
+import itertools
+import random
 
-from utils import RegionShape
+import numpy as np
+from shapely.geometry import Point, Polygon
 from world.agent import Agent
 
 
 class Region:
-    def __init__(self, width, heigth, num_agents, shape=RegionShape.RECTANGLE.value):
-        self.shape = shape
-        self.width = width
-        self.heigth = heigth
+    id_obj = itertools.count()
+
+    def __init__(self, name, vertices, color, num_agents):
+        self.id = next(Region.id_obj)
+        self.vertices = vertices
+        self.name = name
+        self.color = color
+        self.agents_pos = None
         self.agents = []
-        for _ in range(num_agents):
-            pos = self.generate_pos_from_map()
-            self.agents.append(Agent(pos, self))
+
+        self._generate_agents(num_agents)
         self.make_pos_dir()
 
     def step(self):
@@ -33,17 +38,52 @@ class Region:
                 neighborhood += self.agents_pos.get((i, j), [])
         return [n for n in neighborhood if n != agent]
 
-    def is_in_map_area(self, x, y):
-        """Check if x, y position is in map"""
-        if self.shape == RegionShape.RECTANGLE.value:
-            if x < 0 or x >= self.width or y < 0 or y >= self.heigth:
-                return False
-            return True
-        else:
-            raise NotImplementedError()
+    def is_in_map_area(self, point):
+        """
+        Check if a point is inside a polygon defined by an array of vertices.
 
-    def generate_pos_from_map(self):
-        if self.shape == RegionShape.RECTANGLE.value:
-            return np.random.randint(self.width), np.random.randint(self.heigth)
-        else:
-            raise NotImplementedError()
+        Arguments:
+        point -- a tuple representing the (x, y) coordinates of the test point.
+        vertices -- a list of tuples representing the (x, y) coordinates of the vertices of the polygon.
+
+        Returns:
+        True if the point is inside the polygon, False otherwise.
+        """
+        # Cast a ray from the test point to the right
+        # Count the number of times the ray intersects with the edges of the polygon
+        # If the number of intersections is odd, the point is inside the polygon
+        # If the number of intersections is even, the point is outside the polygon
+
+        num_intersections = 0
+        for i in range(len(self.vertices)):
+            j = (i + 1) % len(self.vertices)
+            if ((self.vertices[i][1] > point[1]) != (self.vertices[j][1] > point[1])) and (
+                    point[0] < (self.vertices[j][0] - self.vertices[i][0]) * (point[1] - self.vertices[i][1]) / (
+                    self.vertices[j][1] - self.vertices[i][1]) + self.vertices[i][0]):
+                num_intersections += 1
+
+        return num_intersections % 2 == 1
+
+    def _generate_agents(self, num_agents):
+        for _ in range(num_agents):
+            pos = self._generate_agent_pos_inside_region()
+            self.agents.append(Agent(pos, self))
+
+    def _generate_agent_pos_inside_region(self):
+        # Create a polygon object from the vertices
+        polygon = Polygon(np.array(self.vertices))
+
+        # Find the bounding box of the polygon
+        min_x, min_y, max_x, max_y = polygon.bounds
+
+        # Generate random points until a point is found inside the polygon
+        while True:
+            # Generate a random point within the bounding box
+            x = random.randint(min_x, max_x)
+            y = random.randint(min_y, max_y)
+            point = Point(x, y)
+
+            # check if the point is inside the convex hull
+            if polygon.contains(point):
+                break
+        return x, y

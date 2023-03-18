@@ -1,3 +1,4 @@
+import json
 import sys
 
 from PyQt5.QtWidgets import QApplication
@@ -7,7 +8,10 @@ from widgets.main_window import MainWindow
 
 def main():
     app = QApplication(sys.argv)
-    window = MainWindow()  # noqa
+    data = open('configuration.json')
+    config = json.load(data)
+    window = MainWindow(config)  # noqa
+
     sys.exit(app.exec_())
 
 

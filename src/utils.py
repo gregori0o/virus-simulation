@@ -1,11 +1,6 @@
 from enum import Enum
 
 
-class RegionShape(Enum):
-    RECTANGLE = "rectangle"
-    CIRCLE = "circle"
-
-
 class Direction(Enum):
     UP = "up"
     DOWN = "down"

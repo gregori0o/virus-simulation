@@ -41,7 +41,7 @@ class Agent:
                 case Direction.LEFT.value:
                     delta_x = (np.abs(turn) - 2) * self.velocity // 2
                     delta_y = turn * self.velocity // 2
-            if self.map.is_in_map_area(x + delta_x, y + delta_y):
+            if self.map.is_in_map_area([x + delta_x, y + delta_y]):
                 break
             delta_x = delta_y = 0
             self.direction = Direction.next(self.direction)

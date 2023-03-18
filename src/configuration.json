@@ -1,0 +1,16 @@
+{
+  "main_widget": {
+    "//Regions configuration": "Below you configure regions",
+    "regions": [{
+      "name": "Poland",
+      "vertices": [[0,0], [150, 30] ,[300,0], [300, 100], [50, 100], [0,0]],
+      "color": "red",
+      "number_of_agents": 30
+    },{
+      "name": "Germany",
+      "vertices": [[310,0],[460,0], [460, 150], [310, 150], [310,0]],
+      "color": "blue",
+      "number_of_agents": 30
+    }]
+  }
+}
