@@ -8,8 +8,8 @@ from widgets.main_window import MainWindow
 
 def main():
     app = QApplication(sys.argv)
-    data = open('configuration.json')
-    config = json.load(data)
+    with open('configuration.json', 'r') as f:
+        config = json.load(f)
     window = MainWindow(config)  # noqa
 
     sys.exit(app.exec_())

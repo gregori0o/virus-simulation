@@ -12,12 +12,8 @@ class SimulationCanvas(FigureCanvasQTAgg):
         self.axes.cla()
 
     def plot_region(self, region):
-        x = []
-        y = []
         # create x and y arrays from vertex array - for plot (can I do oneliner here?)
-        for vertex in region.vertices:
-            x.append(vertex[0])
-            y.append(vertex[1])
+        x, y = list(zip(*region.vertices))
         # plot single region from his vertices
         self.axes.plot(x, y, color=region.color)
 

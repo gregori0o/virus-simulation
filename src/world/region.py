@@ -16,6 +16,7 @@ class Region:
         self.color = color
         self.agents_pos = None
         self.agents = []
+        self.polygon = Polygon(np.array(vertices))
 
         self._generate_agents(num_agents)
         self.make_pos_dir()
@@ -39,30 +40,7 @@ class Region:
         return [n for n in neighborhood if n != agent]
 
     def is_in_map_area(self, point):
-        """
-        Check if a point is inside a polygon defined by an array of vertices.
-
-        Arguments:
-        point -- a tuple representing the (x, y) coordinates of the test point.
-        vertices -- a list of tuples representing the (x, y) coordinates of the vertices of the polygon.
-
-        Returns:
-        True if the point is inside the polygon, False otherwise.
-        """
-        # Cast a ray from the test point to the right
-        # Count the number of times the ray intersects with the edges of the polygon
-        # If the number of intersections is odd, the point is inside the polygon
-        # If the number of intersections is even, the point is outside the polygon
-
-        num_intersections = 0
-        for i in range(len(self.vertices)):
-            j = (i + 1) % len(self.vertices)
-            if ((self.vertices[i][1] > point[1]) != (self.vertices[j][1] > point[1])) and (
-                    point[0] < (self.vertices[j][0] - self.vertices[i][0]) * (point[1] - self.vertices[i][1]) / (
-                    self.vertices[j][1] - self.vertices[i][1]) + self.vertices[i][0]):
-                num_intersections += 1
-
-        return num_intersections % 2 == 1
+        return self.polygon.contains(Point(point))
 
     def _generate_agents(self, num_agents):
         for _ in range(num_agents):
@@ -70,11 +48,8 @@ class Region:
             self.agents.append(Agent(pos, self))
 
     def _generate_agent_pos_inside_region(self):
-        # Create a polygon object from the vertices
-        polygon = Polygon(np.array(self.vertices))
-
         # Find the bounding box of the polygon
-        min_x, min_y, max_x, max_y = polygon.bounds
+        min_x, min_y, max_x, max_y = self.polygon.bounds
 
         # Generate random points until a point is found inside the polygon
         while True:
@@ -84,6 +59,6 @@ class Region:
             point = Point(x, y)
 
             # check if the point is inside the convex hull
-            if polygon.contains(point):
+            if self.polygon.contains(point):
                 break
         return x, y
