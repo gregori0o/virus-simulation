@@ -23,6 +23,10 @@ class Region:
         self.make_pos_dir()
 
     def step(self):
+        # infection method - can be moved under agents step
+        self.infect()
+
+        # agents moving
         for agent in self.agents:
             agent.step()
         self.make_pos_dir()
@@ -56,10 +60,7 @@ class Region:
                 pos = self._generate_agent_pos_inside_region()
                 self.agents.append(Agent(pos,
                                          self,
-                                         is_sick=True,
-                                         sick_time=virus.sick_time,
-                                         virus_name=virus.name,
-                                         remaining_immunity=virus.immunity_time)
+                                         virus=virus)
                                    )
 
     def _generate_agent_pos_inside_region(self):
@@ -77,3 +78,28 @@ class Region:
             if self.polygon.contains(point):
                 break
         return x, y
+
+    def remove_agent(self, agent):
+        self.agents.remove(agent)
+
+    def infect(self):
+        for agent in self.agents:
+            # if agent is NOT sick - continue iteration
+            if agent.is_agent_sick():
+                if agent.virus is None:
+                    raise "Agent is sick without having virus"
+
+                # maybe it's better to iterate over agants again and check their position?
+                self.infect_by_position(agent)
+
+    def infect_by_position(self, agent):
+        x, y = agent.pos
+        infection_distance = agent.virus.infection_distance
+        for i in range(max(0, x - infection_distance), x + infection_distance + 1):
+            for j in range(max(0, y - infection_distance), y + infection_distance + 1):
+                for neighbor in self.agents_pos.get((i, j), []):
+                    if not neighbor.is_agent_sick():
+                        if agent.calculate_infection(neighbor):
+                            neighbor.set_sickness(agent.virus)
+
+

@@ -52,5 +52,7 @@ class MainWidget(QWidget):
             self.viruses.append(Virus(name=virus["name"],
                                       death_odds=virus["death_odds"],
                                       sick_time=virus["sick_time"],
-                                      immunity_time=virus["immunity_time"])
+                                      immunity_time=virus["immunity_time"],
+                                      infection_chance=virus["infection_chance"],
+                                      infection_distance=virus["infection_distance"])
                                 )
