@@ -44,7 +44,7 @@ class Region:
                 neighborhood += self.agents_pos.get((i, j), [])
         return [n for n in neighborhood if n != agent]
 
-    def is_in_map_area(self, point):
+    def is_in_region_area(self, point):
         return self.polygon.contains(Point(point))
 
     def _generate_agents(self, num_agents):

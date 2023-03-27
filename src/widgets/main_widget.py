@@ -5,6 +5,8 @@ from world.region import Region
 
 from world.virus import Virus
 
+from world.world import World
+
 
 class MainWidget(QWidget):
     def __init__(self, config):
@@ -18,41 +20,15 @@ class MainWidget(QWidget):
         self.button.clicked.connect(self.step)
         self.layout.addWidget(self.button)
 
-        # TODO viruses and regions should not be place here - maybe create class "World" and place it there
-        self.viruses = []
-        self._create_viruses(config["viruses"])
-
-        self.regions = []
-        self._create_regions(config["regions"])
+        self.world = World(config)
 
         self.simulation_widget.plot_state(
-            self.regions
+            self.world.get_regions()
         )
 
     def step(self):
-        for region in self.regions:
+        for region in self.world.get_regions():
             region.step()
         self.simulation_widget.plot_state(
-            self.regions
+            self.world.get_regions()
         )
-
-    def _create_regions(self, regions):
-        for region in regions:
-            self.regions.append(
-                Region(region["name"],
-                       region["vertices"],
-                       region["color"],
-                       region["number_of_healthy_agents"],
-                       region["number_of_infected_agents"],
-                       self.viruses)
-            )
-
-    def _create_viruses(self, viruses):
-        for virus in viruses:
-            self.viruses.append(Virus(name=virus["name"],
-                                      death_odds=virus["death_odds"],
-                                      sick_time=virus["sick_time"],
-                                      immunity_time=virus["immunity_time"],
-                                      infection_chance=virus["infection_chance"],
-                                      infection_distance=virus["infection_distance"])
-                                )
