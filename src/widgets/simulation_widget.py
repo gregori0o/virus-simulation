@@ -19,7 +19,7 @@ class SimulationCanvas(FigureCanvasQTAgg):
 
     def plot_agents(self, agents):
         def get_color(agent):
-            return "green"
+            return "red" if agent.is_agent_sick() else "green"
 
         X = []
         Y = []
@@ -31,7 +31,7 @@ class SimulationCanvas(FigureCanvasQTAgg):
         self.axes.scatter(X, Y, c=colors)
 
     def draw_canvas(self):
-        self.axes.axis("off")
+        # self.axes.axis("off")
         self.draw()
 
 
