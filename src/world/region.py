@@ -1,18 +1,24 @@
-import numpy as np
+import itertools
+import random
 
-from utils import RegionShape
+import numpy as np
+from shapely.geometry import Point, Polygon
 from world.agent import Agent
 
 
 class Region:
-    def __init__(self, width, heigth, num_agents, shape=RegionShape.RECTANGLE.value):
-        self.shape = shape
-        self.width = width
-        self.heigth = heigth
+    id_obj = itertools.count()
+
+    def __init__(self, name, vertices, color, num_agents):
+        self.id = next(Region.id_obj)
+        self.vertices = vertices
+        self.name = name
+        self.color = color
+        self.agents_pos = None
         self.agents = []
-        for _ in range(num_agents):
-            pos = self.generate_pos_from_map()
-            self.agents.append(Agent(pos, self))
+        self.polygon = Polygon(np.array(vertices))
+
+        self._generate_agents(num_agents)
         self.make_pos_dir()
 
     def step(self):
@@ -33,17 +39,26 @@ class Region:
                 neighborhood += self.agents_pos.get((i, j), [])
         return [n for n in neighborhood if n != agent]
 
-    def is_in_map_area(self, x, y):
-        """Check if x, y position is in map"""
-        if self.shape == RegionShape.RECTANGLE.value:
-            if x < 0 or x >= self.width or y < 0 or y >= self.heigth:
-                return False
-            return True
-        else:
-            raise NotImplementedError()
+    def is_in_map_area(self, point):
+        return self.polygon.contains(Point(point))
 
-    def generate_pos_from_map(self):
-        if self.shape == RegionShape.RECTANGLE.value:
-            return np.random.randint(self.width), np.random.randint(self.heigth)
-        else:
-            raise NotImplementedError()
+    def _generate_agents(self, num_agents):
+        for _ in range(num_agents):
+            pos = self._generate_agent_pos_inside_region()
+            self.agents.append(Agent(pos, self))
+
+    def _generate_agent_pos_inside_region(self):
+        # Find the bounding box of the polygon
+        min_x, min_y, max_x, max_y = self.polygon.bounds
+
+        # Generate random points until a point is found inside the polygon
+        while True:
+            # Generate a random point within the bounding box
+            x = random.randint(min_x, max_x)
+            y = random.randint(min_y, max_y)
+            point = Point(x, y)
+
+            # check if the point is inside the convex hull
+            if self.polygon.contains(point):
+                break
+        return x, y

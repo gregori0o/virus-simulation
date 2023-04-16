@@ -5,7 +5,7 @@ from world.region import Region
 
 
 class MainWidget(QWidget):
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
 
         self.layout = QVBoxLayout(self)
@@ -16,13 +16,24 @@ class MainWidget(QWidget):
         self.button.clicked.connect(self.step)
         self.layout.addWidget(self.button)
 
-        self.region = Region(200, 100, 50)
+        self.regions = []
+        self._create_regions(config["regions"])
         self.simulation_widget.plot_state(
-            self.region.width, self.region.heigth, self.region.shape, self.region.agents
+            self.regions
         )
 
     def step(self):
-        self.region.step()
+        for region in self.regions:
+            region.step()
         self.simulation_widget.plot_state(
-            self.region.width, self.region.heigth, self.region.shape, self.region.agents
+            self.regions
         )
+
+    def _create_regions(self, regions):
+        for region in regions:
+            self.regions.append(
+                Region(region["name"],
+                       region["vertices"],
+                       region["color"],
+                       region["number_of_agents"])
+            )
