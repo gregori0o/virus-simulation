@@ -28,6 +28,12 @@ class Direction(Enum):
                 return cls.UP.value
 
 
+class Status(Enum):
+    SICK = "sick"
+    HEALTHY = "healthy"
+    IMMUNE = "immune"
+
+
 class Runner(QThread):
     signal = pyqtSignal()
 

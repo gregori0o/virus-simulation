@@ -12,14 +12,16 @@ class Agent:
         self.pos = pos
         self.age = 0
         self.is_sick = virus is not None
-        self.sick_time = virus.sick_time if virus else 0
-        self.virus = virus
-        self.remaining_immunity = (
-            [virus.immunity_time, virus] if virus else [None, None]
-        )  # (immunity, last_virus_name)
+        self.sick_info = {}
+        self.immunity_info = {}
         self.velocity = velocity
         self.direction = np.random.choice(Direction.list())
         self.region = region
+        if virus is None:
+            self.region.statistic.healthy_birth()
+        else:
+            self.region.statistic.sick_birth()
+            self.sick_info[virus.name] = (virus.sick_time, virus)
 
     def step(self):
         """Try to make step. If it goes off the map, turn right (change self.direction to next). If it cannot make step, stays in place."""
@@ -54,31 +56,49 @@ class Agent:
 
         self.agent_sick_update()
 
-    def is_agent_sick(self):
-        return self.is_sick
+    def is_agent_sick(self, virus_name=None):
+        if virus_name is None:
+            return self.is_sick
+        return self.sick_info.get(virus_name) is not None
 
     def update_sickness(self):
-        self.sick_time -= 1
-        if self.sick_time == 0:
+        to_remove = []
+        for virus_name, (sick_time, virus) in self.sick_info.items():
+            sick_time -= 1
+            if sick_time == 0:
+                to_remove.append(virus_name)
+                self.immunity_info[virus_name] = (virus.immunity_time + 1, virus)
+            else:
+                self.sick_info[virus_name] = (sick_time, virus)
+        for virus_name in to_remove:
+            del self.sick_info[virus_name]
+        if not self.sick_info:
             self.is_sick = False
-            self.virus = None
 
     def update_immunity(self):
-        self.remaining_immunity[0] -= 1
+        to_remove = []
+        for virus_name, tmp in self.immunity_info.items():
+            remaining_immunity, virus = tmp
+            remaining_immunity -= 1
+            if remaining_immunity == 0:
+                to_remove.append(virus_name)
+            else:
+                self.immunity_info[virus_name] = (remaining_immunity, virus)
+        for virus_name in to_remove:
+            del self.immunity_info[virus_name]
 
     def agent_sick_update(self):
         if self.is_sick:
             if self.calculate_death():
                 self.remove_agent()
             self.update_sickness()
-        elif self.remaining_immunity[0] != 0 and self.remaining_immunity[0] is not None:
-            self.update_immunity()
+        self.update_immunity()
 
     def calculate_death_prob(self) -> int:
-        return self.virus.death_odds
+        return max([virus.death_odds for _, virus in self.sick_info.values()])
 
     def calculate_death(self) -> bool:
-        if self.virus is None:
+        if not self.sick_info:
             raise Exception("Trying to calculate death without virus")
         is_dying = (True, False)
         death_probability = self.calculate_death_prob()
@@ -88,19 +108,16 @@ class Agent:
     def remove_agent(self):
         self.region.remove_agent(self)
 
-    def calculate_infection_prob(self) -> int:
-        return self.virus.infection_chance
+    def calculate_infection_prob(self, virus_name) -> int:
+        return self.sick_info[virus_name][1].infection_chance
 
-    def calculate_infection(self, neighbor) -> bool:
-        if self.virus is None:
-            raise Exception("Trying to calculate infection without virus")
-        if (
-            neighbor.remaining_immunity[0] != 0
-            and neighbor.remaining_immunity[1] == self.virus
-        ):
+    def calculate_infection(self, neighbor, virus_name) -> bool:
+        if self.sick_info.get(virus_name) is None:
+            raise Exception(f"Trying to calculate infection without virus {virus_name}")
+        if neighbor.immunity_info.get(virus_name) is not None:
             return False
         infected = (True, False)
-        infection_probability = self.calculate_infection_prob()
+        infection_probability = self.calculate_infection_prob(virus_name)
         cum_weights = (infection_probability, 100 - infection_probability)
         return random.choices(infected, cum_weights=cum_weights, k=1)[0]
 
@@ -108,6 +125,4 @@ class Agent:
         if virus is None:
             raise Exception("Trying set sickness infection without virus")
         self.is_sick = True
-        self.sick_time = virus.sick_time
-        self.virus = virus
-        self.remaining_immunity = [virus.immunity_time, virus]
+        self.sick_info[virus.name] = (virus.sick_time, virus)
