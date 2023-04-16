@@ -4,7 +4,6 @@ from typing import Tuple
 import numpy as np
 
 from utils import Direction
-
 from world.virus import Virus
 
 
@@ -15,7 +14,9 @@ class Agent:
         self.is_sick = virus is not None
         self.sick_time = virus.sick_time if virus else 0
         self.virus = virus
-        self.remaining_immunity = [virus.immunity_time, virus] if virus else [None, None]  # (immunity, last_virus_name)
+        self.remaining_immunity = (
+            [virus.immunity_time, virus] if virus else [None, None]
+        )  # (immunity, last_virus_name)
         self.velocity = velocity
         self.direction = np.random.choice(Direction.list())
         self.region = region
@@ -93,7 +94,10 @@ class Agent:
     def calculate_infection(self, neighbor) -> bool:
         if self.virus is None:
             raise Exception("Trying to calculate infection without virus")
-        if neighbor.remaining_immunity[0] != 0 and neighbor.remaining_immunity[1] == self.virus:
+        if (
+            neighbor.remaining_immunity[0] != 0
+            and neighbor.remaining_immunity[1] == self.virus
+        ):
             return False
         infected = (True, False)
         infection_probability = self.calculate_infection_prob()
@@ -107,6 +111,3 @@ class Agent:
         self.sick_time = virus.sick_time
         self.virus = virus
         self.remaining_immunity = [virus.immunity_time, virus]
-
-
-
