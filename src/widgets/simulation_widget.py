@@ -2,8 +2,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from PyQt5.QtWidgets import QHBoxLayout, QWidget
 
-from utils import RegionShape
-
 
 class SimulationCanvas(FigureCanvasQTAgg):
     def __init__(self):
@@ -13,14 +11,15 @@ class SimulationCanvas(FigureCanvasQTAgg):
     def clear_plot(self):
         self.axes.cla()
 
-    def plot_rectangle(self, width, heigth):
-        self.axes.plot([0, width, width, 0, 0], [0, 0, heigth, heigth, 0], color="blue")
-        self.axes.axis("off")
-        self.draw()
+    def plot_region(self, region):
+        # create x and y arrays from vertex array - for plot (can I do oneliner here?)
+        x, y = list(zip(*region.vertices))
+        # plot single region from his vertices
+        self.axes.plot(x, y, color=region.color)
 
     def plot_agents(self, agents):
         def get_color(agent):
-            return "green"
+            return "red" if agent.is_agent_sick() else "green"
 
         X = []
         Y = []
@@ -30,6 +29,9 @@ class SimulationCanvas(FigureCanvasQTAgg):
             Y.append(agent.pos[1])
             colors.append(get_color(agent))
         self.axes.scatter(X, Y, c=colors)
+
+    def draw_canvas(self):
+        # self.axes.axis("off")
         self.draw()
 
 
@@ -41,10 +43,16 @@ class SimulationWidget(QWidget):
         self.canvas = SimulationCanvas()
         self.layout.addWidget(self.canvas)
 
-    def plot_state(self, width, heigth, shape, agents):
+    # plot whole map
+    def plot_state(self, regions):
+        # clear all plots(regions)
         self.canvas.clear_plot()
-        if shape == RegionShape.RECTANGLE.value:
-            self.canvas.plot_rectangle(width, heigth)
-        else:
-            raise NotImplementedError
-        self.canvas.plot_agents(agents)
+
+        for region in regions:
+            self.canvas.plot_region(region)
+            self.canvas.plot_agents(region.agents)
+
+        # draw map
+        self.canvas.draw_canvas()
+
+

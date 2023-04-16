@@ -3,11 +3,15 @@ from PyQt5.QtWidgets import QHBoxLayout, QPushButton, QSpinBox, QVBoxLayout, QWi
 from utils import AutomateSteps
 from widgets.simulation_widget import SimulationWidget
 from world.region import Region
+from world.virus import Virus
+from world.world import World
 
 
 class MainWidget(QWidget):
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
+
+        self.config = config
 
         self.layout = QVBoxLayout(self)
         self.simulation_widget = SimulationWidget()
@@ -35,7 +39,7 @@ class MainWidget(QWidget):
         self.layout.addLayout(self.control_panel)
 
         self.is_run = False
-        self.restart_map()
+        self.restart_world()
 
     def start_pause(self):
         if self.is_run:
@@ -51,14 +55,12 @@ class MainWidget(QWidget):
             self.start_button.setText("PAUSE")
         self.is_run = not self.is_run
 
-    def step(self):
-        self.region.step()
-        self.simulation_widget.plot_state(
-            self.region.width, self.region.heigth, self.region.shape, self.region.agents
-        )
+    def restart_world(self):
+        self.world = World(self.config)
 
-    def restart_map(self):
-        self.region = Region(200, 100, 50)
-        self.simulation_widget.plot_state(
-            self.region.width, self.region.heigth, self.region.shape, self.region.agents
-        )
+        self.simulation_widget.plot_state(self.world.get_regions())
+
+    def step(self):
+        for region in self.world.get_regions():
+            region.step()
+        self.simulation_widget.plot_state(self.world.get_regions())

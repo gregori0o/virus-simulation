@@ -5,11 +5,6 @@ from typing import Callable
 from PyQt5.QtCore import QThread, pyqtSignal
 
 
-class RegionShape(Enum):
-    RECTANGLE = "rectangle"
-    CIRCLE = "circle"
-
-
 class Direction(Enum):
     UP = "up"
     DOWN = "down"
