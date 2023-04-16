@@ -17,7 +17,7 @@ class RegionStatistic:
         if virus_name is None:
             return self.healthy
         return (
-            self.healthy
+            self.get_total()
             - self.sick_disease[virus_name]
             - self.immune_disease[virus_name]
         )
