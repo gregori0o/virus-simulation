@@ -44,6 +44,7 @@ class ChartsWidget(QWidget):
         self.layout.addWidget(self.virus_box)
 
         self.region_box.currentTextChanged.connect(self.plot_statistics)
+        self.virus_box.currentTextChanged.connect(self.plot_statistics)
         self.plot_statistics
 
     def plot_statistics(self):
