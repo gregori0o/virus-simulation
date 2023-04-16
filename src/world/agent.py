@@ -20,7 +20,7 @@ class Agent:
         if virus is None:
             self.region.statistic.healthy_birth()
         else:
-            self.region.statistic.sick_birth()
+            self.region.statistic.sick_birth(virus.name)
             self.sick_info[virus.name] = (virus.sick_time, virus)
 
     def step(self):
@@ -67,12 +67,15 @@ class Agent:
             sick_time -= 1
             if sick_time == 0:
                 to_remove.append(virus_name)
+                self.region.statistic.end_sick(virus_name)
                 self.immunity_info[virus_name] = (virus.immunity_time + 1, virus)
             else:
                 self.sick_info[virus_name] = (sick_time, virus)
         for virus_name in to_remove:
             del self.sick_info[virus_name]
         if not self.sick_info:
+            if self.is_sick:
+                self.region.statistic.end_be_sick()
             self.is_sick = False
 
     def update_immunity(self):
@@ -82,6 +85,7 @@ class Agent:
             remaining_immunity -= 1
             if remaining_immunity == 0:
                 to_remove.append(virus_name)
+                self.region.statistic.end_immune(virus_name)
             else:
                 self.immunity_info[virus_name] = (remaining_immunity, virus)
         for virus_name in to_remove:
@@ -102,10 +106,11 @@ class Agent:
             raise Exception("Trying to calculate death without virus")
         is_dying = (True, False)
         death_probability = self.calculate_death_prob()
-        cum_weights = (death_probability, 100 - death_probability)
-        return random.choices(is_dying, cum_weights=cum_weights, k=1)[0]
+        weights = (death_probability, 100 - death_probability)
+        return random.choices(is_dying, weights=weights, k=1)[0]
 
     def remove_agent(self):
+        self.region.statistic.death(self)
         self.region.remove_agent(self)
 
     def calculate_infection_prob(self, virus_name) -> int:
@@ -118,11 +123,14 @@ class Agent:
             return False
         infected = (True, False)
         infection_probability = self.calculate_infection_prob(virus_name)
-        cum_weights = (infection_probability, 100 - infection_probability)
-        return random.choices(infected, cum_weights=cum_weights, k=1)[0]
+        weights = (infection_probability, 100 - infection_probability)
+        return random.choices(infected, weights=weights, k=1)[0]
 
     def set_sickness(self, virus):
         if virus is None:
             raise Exception("Trying set sickness infection without virus")
+        if not self.is_sick:
+            self.region.statistic.start_be_sick()
+        self.region.statistic.start_sick(virus.name)
         self.is_sick = True
         self.sick_info[virus.name] = (virus.sick_time, virus)
