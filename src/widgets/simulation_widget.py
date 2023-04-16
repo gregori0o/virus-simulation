@@ -54,5 +54,3 @@ class SimulationWidget(QWidget):
 
         # draw map
         self.canvas.draw_canvas()
-
-

@@ -1,5 +1,4 @@
 from world.region import Region
-
 from world.virus import Virus
 
 
@@ -20,20 +19,25 @@ class World:
     def _create_regions(self, regions):
         for region in regions:
             self.regions.append(
-                Region(region["name"],
-                       region["vertices"],
-                       region["color"],
-                       region["number_of_healthy_agents"],
-                       region["number_of_infected_agents"],
-                       self.viruses)
+                Region(
+                    region["name"],
+                    region["vertices"],
+                    region["color"],
+                    region["number_of_healthy_agents"],
+                    region["number_of_infected_agents"],
+                    self.viruses,
+                )
             )
 
     def _create_viruses(self, viruses):
         for virus in viruses:
-            self.viruses.append(Virus(name=virus["name"],
-                                      death_odds=virus["death_odds"],
-                                      sick_time=virus["sick_time"],
-                                      immunity_time=virus["immunity_time"],
-                                      infection_chance=virus["infection_chance"],
-                                      infection_distance=virus["infection_distance"])
-                                )
+            self.viruses.append(
+                Virus(
+                    name=virus["name"],
+                    death_odds=virus["death_odds"],
+                    sick_time=virus["sick_time"],
+                    immunity_time=virus["immunity_time"],
+                    infection_chance=virus["infection_chance"],
+                    infection_distance=virus["infection_distance"],
+                )
+            )

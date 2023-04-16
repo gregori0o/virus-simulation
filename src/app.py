@@ -8,7 +8,7 @@ from widgets.main_window import MainWindow
 
 def main():
     app = QApplication(sys.argv)
-    with open('configuration.json', 'r') as f:
+    with open("configuration.json", "r") as f:
         config = json.load(f)
     window = MainWindow(config)  # noqa
 
