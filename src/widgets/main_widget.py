@@ -3,6 +3,10 @@ from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QWidget
 from widgets.simulation_widget import SimulationWidget
 from world.region import Region
 
+from world.virus import Virus
+
+from world.world import World
+
 
 class MainWidget(QWidget):
     def __init__(self, config):
@@ -16,24 +20,15 @@ class MainWidget(QWidget):
         self.button.clicked.connect(self.step)
         self.layout.addWidget(self.button)
 
-        self.regions = []
-        self._create_regions(config["regions"])
+        self.world = World(config)
+
         self.simulation_widget.plot_state(
-            self.regions
+            self.world.get_regions()
         )
 
     def step(self):
-        for region in self.regions:
+        for region in self.world.get_regions():
             region.step()
         self.simulation_widget.plot_state(
-            self.regions
+            self.world.get_regions()
         )
-
-    def _create_regions(self, regions):
-        for region in regions:
-            self.regions.append(
-                Region(region["name"],
-                       region["vertices"],
-                       region["color"],
-                       region["number_of_agents"])
-            )
