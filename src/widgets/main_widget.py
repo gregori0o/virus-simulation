@@ -17,7 +17,7 @@ class MainWidget(QWidget):
         self.simulation_widget = SimulationWidget()
         self.layout.addWidget(self.simulation_widget)
 
-        self.automat = AutomateSteps(self.step, self.restart_map)
+        self.automat = AutomateSteps(self.step, self.restart_world)
         self.control_panel = QHBoxLayout()
 
         self.interval_box = QSpinBox()
