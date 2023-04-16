@@ -12,12 +12,14 @@ class MainWidget(QWidget):
         super().__init__()
 
         self.config = config
+        self.is_run = False
+        self.world = World(self.config)
 
         self.layout = QVBoxLayout(self)
         self.simulation_widget = SimulationWidget()
         self.layout.addWidget(self.simulation_widget)
 
-        self.automat = AutomateSteps(self.step, self.restart_world)
+        self.automat = AutomateSteps(self.step_world, self.restart_world)
         self.control_panel = QHBoxLayout()
 
         self.interval_box = QSpinBox()
@@ -37,9 +39,7 @@ class MainWidget(QWidget):
         self.control_panel.addWidget(self.restart_button)
 
         self.layout.addLayout(self.control_panel)
-
-        self.is_run = False
-        self.restart_world()
+        self.simulation_widget.plot_state(self.world.get_regions())
 
     def start_pause(self):
         if self.is_run:
@@ -55,12 +55,10 @@ class MainWidget(QWidget):
             self.start_button.setText("PAUSE")
         self.is_run = not self.is_run
 
-    def restart_world(self):
-        self.world = World(self.config)
-
+    def step_world(self):
+        self.world.step()
         self.simulation_widget.plot_state(self.world.get_regions())
 
-    def step(self):
-        for region in self.world.get_regions():
-            region.step()
+    def restart_world(self):
+        self.world.restart()
         self.simulation_widget.plot_state(self.world.get_regions())
