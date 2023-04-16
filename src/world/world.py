@@ -57,4 +57,5 @@ class World:
         for region in self.regions:
             self.statistic.add_data(self.step_num, region.name, region.statistic)
         self.statistic.sum_step(self.step_num)
+
         self.step_num += 1

@@ -5,6 +5,7 @@ class RegionStatistic:
     def __init__(self):
         self.sick = 0
         self.healthy = 0
+        self.deaths = 0
 
         self.sick_disease = defaultdict(lambda: 0)
         self.immune_disease = defaultdict(lambda: 0)
@@ -29,6 +30,9 @@ class RegionStatistic:
     def get_immune(self, virus_name):
         return self.immune_disease[virus_name]
 
+    def get_deaths(self):
+        return self.deaths
+
     def healthy_birth(self):
         self.healthy += 1
 
@@ -37,6 +41,7 @@ class RegionStatistic:
         self.sick_disease[virus_name] += 1
 
     def death(self, agent):
+        self.deaths += 1
         if agent.is_agent_sick():
             self.sick -= 1
             for virus_name in agent.sick_info.keys():

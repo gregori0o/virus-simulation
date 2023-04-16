@@ -28,13 +28,12 @@ class Region:
         self.make_pos_dir()
 
     def step(self):
-        # infection method - can be moved under agents step
-        self.infect()
-
         # agents moving
         for agent in self.agents:
             agent.step()
+
         self.make_pos_dir()
+        self.infect()
 
     def make_pos_dir(self):
         self.agents_pos = {}

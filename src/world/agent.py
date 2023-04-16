@@ -95,6 +95,7 @@ class Agent:
         if self.is_sick:
             if self.calculate_death():
                 self.remove_agent()
+                return
             self.update_sickness()
         self.update_immunity()
 
