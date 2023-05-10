@@ -14,12 +14,9 @@ class ChartCanvas(FigureCanvasQTAgg):
     def draw_canvas(self):
         self.draw()
 
-    def plot(self, h, s, i, d=None):
-        self.axes.plot(h, color="green", label="healthy")
-        self.axes.plot(s, color="red", label="sick")
-        self.axes.plot(i, color="blue", label="immune")
-        if d is not None:
-            self.axes.plot(d, color="black", label="deaths")
+    def plot(self, data):
+        for arr, color, label in data:
+            self.axes.plot(arr, color=color, label=label)
         self.axes.legend()
 
 
@@ -32,8 +29,16 @@ class ChartsWidget(QWidget):
 
         self.layout = QVBoxLayout(self)
 
-        self.canvas = ChartCanvas()
-        self.layout.addWidget(self.canvas)
+        self.global_canvas = ChartCanvas()
+        self.layout.addWidget(self.global_canvas)
+
+        self.global_region_box = QComboBox()
+        self.global_region_box.addItems(["world"] + self.statistic.region_names)
+        self.layout.addWidget(self.global_region_box)
+        self.global_region_box.currentTextChanged.connect(self.plot_global_statistics)
+
+        self.sick_canvas = ChartCanvas()
+        self.layout.addWidget(self.sick_canvas)
 
         self.region_box = QComboBox()
         self.region_box.addItems(["world"] + self.statistic.region_names)
@@ -43,22 +48,41 @@ class ChartsWidget(QWidget):
         self.virus_box.addItems(self.statistic.virus_names)
         self.layout.addWidget(self.virus_box)
 
-        self.region_box.currentTextChanged.connect(self.plot_statistics)
-        self.virus_box.currentTextChanged.connect(self.plot_statistics)
-        self.plot_statistics
+        self.region_box.currentTextChanged.connect(self.plot_sick_statistics)
+        self.virus_box.currentTextChanged.connect(self.plot_sick_statistics)
 
-    def plot_statistics(self):
+        self.plot_statistics()
+
+    def plot_sick_statistics(self):
         region_name = self.region_box.currentText()
         virus_name = self.virus_box.currentText()
         h, s, i = self.statistic.get_sick_window(
             self.window_size, virus_name, region_name
         )
-        _, _, d = self.statistic.get_global_window(
-            self.window_size, region_name
-        )  # must be change if simulate more than one virus
-        self.canvas.clear_plot()
-        self.canvas.plot(h, s, i, d)
-        self.canvas.draw_canvas()
+        data = [
+            (h, "green", "not infected"),
+            (s, "red", "sick"),
+            (i, "blue", "immune"),
+        ]
+        self.sick_canvas.clear_plot()
+        self.sick_canvas.plot(data)
+        self.sick_canvas.draw_canvas()
+
+    def plot_global_statistics(self):
+        region_name = self.global_region_box.currentText()
+        h, s, d = self.statistic.get_global_window(self.window_size, region_name)
+        data = [
+            (h, "green", "healthy"),
+            (s, "red", "sick"),
+            (d, "black", "deaths"),
+        ]
+        self.global_canvas.clear_plot()
+        self.global_canvas.plot(data)
+        self.global_canvas.draw_canvas()
+
+    def plot_statistics(self):
+        self.plot_sick_statistics()
+        self.plot_global_statistics()
 
     def restart_statistics(self, statistic):
         self.statistic = statistic
