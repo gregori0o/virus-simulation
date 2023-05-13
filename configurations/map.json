@@ -1,0 +1,61 @@
+{
+    "main_widget": {
+      "//Regions configuration": "Below you configure regions",
+      "regions": [{
+        "name": "Poland",
+        "vertices": [[0,15], [100, 5], [200, 15], [300,0], [300, 300], [150, 300], [170, 310], [0, 300], [0,15]],
+        "color": "red",
+        "number_of_healthy_agents": 70,
+        "//infected_agents_comment": "array of Tuples [number of infected agents, virus name]",
+        "number_of_infected_agents": [[30, "Covid"]],
+        "has_airport": true
+      },{
+        "name": "Somali",
+        "vertices": [[0, 320],[300,320], [300, 620], [0, 620], [0,320]],
+        "color": "blue",
+        "number_of_healthy_agents": 70,
+        "//infected_agents_comment": "array of Tuples [number of infected agents, virus name]",
+        "number_of_infected_agents": [[30, "Covid"]],
+        "has_airport": true
+      },{
+        "name": "Equatorial Guinea",
+        "vertices": [[310,100], [370, 30], [440, 30], [500,100], [500, 170], [440, 240], [370, 240], [310, 170], [310,100]],
+        "color": "blue",
+        "number_of_healthy_agents": 20,
+        "//infected_agents_comment": "array of Tuples [number of infected agents, virus name]",
+        "number_of_infected_agents": [[20, "Covid"]],
+        "has_airport": true
+      },{
+        "name": "Monaco",
+        "vertices": [[310,300],[500,300], [500, 400], [420, 480], [350, 400], [310, 420], [310,300]],
+        "color": "blue",
+        "number_of_healthy_agents": 20,
+        "//infected_agents_comment": "array of Tuples [number of infected agents, virus name]",
+        "number_of_infected_agents": [[20, "Covid"]],
+        "has_airport": true
+      },{
+        "name": "Russia",
+        "vertices": [[510,0],[1000,0], [1000, 600], [510, 600], [510,0]],
+        "color": "blue",
+        "number_of_healthy_agents": 150,
+        "//infected_agents_comment": "array of Tuples [number of infected agents, virus name]",
+        "number_of_infected_agents": [[50, "Covid"]],
+        "has_airport": true
+      }],
+      "//Virus configuration": "Below you configure viruses - default numer of viruses is 1, sick time and immunity time is in steps, death odds in %",
+      "viruses": [{
+        "name": "Covid",
+        "death_odds": 2,
+        "sick_time": 15,
+        "immunity_time": 10,
+        "infection_chance": 80,
+        "infection_distance": 5
+      }],
+      "//Air travel configuration": "Below you configure air travel - frequency is in steps, travellers is percent of people in the country",
+      "flights": {
+        "frequency": 10,
+        "travelers": 0.1
+      }
+    }
+  }
+  
