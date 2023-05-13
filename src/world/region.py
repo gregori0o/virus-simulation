@@ -1,5 +1,7 @@
 import itertools
+import math
 import random
+from random import choice
 
 import numpy as np
 from shapely.geometry import Point, Polygon
@@ -118,3 +120,25 @@ class Region:
                     if not neighbor.is_agent_sick(virus.name):
                         if agent.calculate_infection(neighbor, virus.name):
                             neighbor.set_sickness(virus)
+
+    def get_passengers(self, percent):
+        if self.airport is None:
+            return []
+        num_passengers = math.floor(percent * len(self.agents))
+        passengers = []
+        for _ in range(num_passengers):
+            agent = choice(self.agents)
+            passengers.append(agent)
+            self.statistic.remove_agent(agent)
+            self.remove_agent(agent)
+        return passengers
+
+    def put_passengers(self, passengers):
+        for agent in passengers:
+            agent.pos = self.airport
+            agent.region = self
+            self.agents.append(agent)
+            self.statistic.add_agent(agent)
+
+        self.make_pos_dir()
+        self.infect()

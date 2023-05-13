@@ -68,3 +68,23 @@ class RegionStatistic:
     def end_be_sick(self):
         self.healthy += 1
         self.sick -= 1
+
+    def add_agent(self, agent):
+        if agent.is_agent_sick():
+            self.sick += 1
+        else:
+            self.healthy += 1
+        for virus_name in agent.immunity_info.keys():
+            self.immune_disease[virus_name] += 1
+        for virus_name in agent.sick_info.keys():
+            self.sick_disease[virus_name] += 1
+
+    def remove_agent(self, agent):
+        if agent.is_agent_sick():
+            self.sick -= 1
+        else:
+            self.healthy -= 1
+        for virus_name in agent.immunity_info.keys():
+            self.immune_disease[virus_name] -= 1
+        for virus_name in agent.sick_info.keys():
+            self.sick_disease[virus_name] -= 1
