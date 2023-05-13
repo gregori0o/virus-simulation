@@ -12,7 +12,14 @@ class Region:
     id_obj = itertools.count()
 
     def __init__(
-        self, name, vertices, color, num_healthy_agents, sick_agents_arr, viruses
+        self,
+        name,
+        vertices,
+        color,
+        num_healthy_agents,
+        sick_agents_arr,
+        has_airport,
+        viruses,
     ):
         self.id = next(Region.id_obj)
         self.vertices = vertices
@@ -23,6 +30,7 @@ class Region:
         self.polygon = Polygon(np.array(vertices))
         self.statistic = RegionStatistic()
 
+        self._generate_airport(has_airport)
         self._generate_agents(num_healthy_agents)
         self._generate_sick_agents(sick_agents_arr, viruses)
         self.make_pos_dir()
@@ -51,9 +59,16 @@ class Region:
     def is_in_region_area(self, point):
         return self.polygon.contains(Point(point))
 
+    def _generate_airport(self, has_airport):
+        if has_airport:
+            pos = self._generate_pos_inside_region()
+            self.airport = pos
+        else:
+            self.airport = None
+
     def _generate_agents(self, num_agents):
         for _ in range(num_agents):
-            pos = self._generate_agent_pos_inside_region()
+            pos = self._generate_pos_inside_region()
             self.agents.append(Agent(pos, self))
 
     def _generate_sick_agents(self, sick_agents_arr, viruses):
@@ -61,10 +76,10 @@ class Region:
         for sick_agents in sick_agents_arr:
             virus = next(virus for virus in viruses if virus.name == sick_agents[1])
             for _ in range(int(sick_agents[0])):
-                pos = self._generate_agent_pos_inside_region()
+                pos = self._generate_pos_inside_region()
                 self.agents.append(Agent(pos, self, virus=virus))
 
-    def _generate_agent_pos_inside_region(self):
+    def _generate_pos_inside_region(self):
         # Find the bounding box of the polygon
         min_x, min_y, max_x, max_y = self.polygon.bounds
 

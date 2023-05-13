@@ -34,6 +34,7 @@ class World:
                     region["color"],
                     region["number_of_healthy_agents"],
                     region["number_of_infected_agents"],
+                    region.get("has_airport"),
                     self.viruses,
                 )
             )

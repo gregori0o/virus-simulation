@@ -13,9 +13,13 @@ class SimulationCanvas(FigureCanvasQTAgg):
 
     def plot_region(self, region):
         # create x and y arrays from vertex array - for plot (can I do oneliner here?)
-        x, y = list(zip(*region.vertices))
+        X, Y = list(zip(*region.vertices))
         # plot single region from his vertices
-        self.axes.plot(x, y, color=region.color)
+        self.axes.plot(X, Y, color=region.color)
+        # plot airport
+        if region.airport is not None:
+            x, y = region.airport
+            self.axes.scatter(x, y, color="black", marker="$A$", s=100)
 
     def plot_agents(self, agents):
         def get_color(agent):
