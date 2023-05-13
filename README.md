@@ -7,7 +7,7 @@ Python 3.10
 
 ## Developing
 
-```shell
+```bash
 git clone https://github.com/gregori0o/virus-simulation.git virus-simulation
 cd virus-simulation
 virtualenv .venv
@@ -18,6 +18,6 @@ pre-commit install
 
 ## Running app
 
-```shell
-python src/app.py
+```bash
+python src/app.py <config file path>
 ```
