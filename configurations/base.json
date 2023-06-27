@@ -8,7 +8,7 @@
       "wealth_percent": 70,
       "number_of_healthy_agents": 40,
       "//infected_agents_comment": "array of Tuples [number of infected agents, virus name]",
-      "number_of_infected_agents": [[20, "Covid"]],
+      "number_of_infected_agents": [[20, "Flu"]],
       "has_airport": true,
       "close_airport": 0.4
     },{
@@ -18,20 +18,12 @@
       "wealth_percent": 100,
       "number_of_healthy_agents": 100,
       "//infected_agents_comment": "array of Tuples [number of infected agents, virus name]",
-      "number_of_infected_agents": [[30, "Covid"], [20, "Flu"]],
+      "number_of_infected_agents": [[20, "Flu"]],
       "has_airport": true,
       "close_airport": 0.6
     }],
     "//Virus configuration": "Below you configure viruses - default numer of viruses is 1, sick time and immunity time is in steps, death odds in %",
     "viruses": [{
-      "name": "Covid",
-      "death_odds": 4,
-      "sick_time": 10,
-      "immunity_time": 30,
-      "infection_chance": 50,
-      "infection_distance": 10
-    },
-    {
       "name": "Flu",
       "death_odds": [0, 3],
       "sick_time": 10,
