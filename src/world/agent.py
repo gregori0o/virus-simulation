@@ -54,6 +54,7 @@ class Agent:
             self.direction = Direction.next(self.direction)
         self.pos = (x + delta_x, y + delta_y)
 
+        self.age += 1
         self.agent_sick_update()
 
     def is_agent_sick(self, virus_name=None):
@@ -92,21 +93,28 @@ class Agent:
             del self.immunity_info[virus_name]
 
     def agent_sick_update(self):
+        if self.calculate_death():
+            self.remove_agent()
+            return
         if self.is_sick:
-            if self.calculate_death():
-                self.remove_agent()
-                return
             self.update_sickness()
         self.update_immunity()
 
     def calculate_death_prob(self) -> int:
-        return max([virus.death_odds for _, virus in self.sick_info.values()])
+        age_death_prob = 0
+        if self.age > 200:
+            age_death_prob = self.age - 200
+        return max(
+            [virus.death_odds for _, virus in self.sick_info.values()]
+            + [age_death_prob]
+        )
 
     def calculate_death(self) -> bool:
-        if not self.sick_info:
-            raise Exception("Trying to calculate death without virus")
         is_dying = (True, False)
-        death_probability = self.calculate_death_prob()
+        delta = 1
+        if self.region.wealth is not None:
+            delta = 1.3 - self.region.wealth / 200
+        death_probability = min(self.calculate_death_prob() * delta, 100)
         weights = (death_probability, 100 - death_probability)
         return random.choices(is_dying, weights=weights, k=1)[0]
 
@@ -134,4 +142,7 @@ class Agent:
             self.region.statistic.start_be_sick()
         self.region.statistic.start_sick(virus.name)
         self.is_sick = True
-        self.sick_info[virus.name] = (virus.sick_time, virus)
+        delta = 1
+        if self.region.wealth is not None:
+            delta = 1.3 - self.region.wealth / 200
+        self.sick_info[virus.name] = (int(virus.sick_time * delta), virus)

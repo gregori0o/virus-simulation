@@ -16,12 +16,12 @@ from world.world import World
 
 
 class MainWidget(QWidget):
-    def __init__(self, config):
+    def __init__(self, config, simulation_id):
         super().__init__()
 
         self.config = config
         self.is_run = False
-        self.world = World(self.config)
+        self.world = World(self.config, simulation_id)
 
         self.layout = QHBoxLayout(self)
 

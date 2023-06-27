@@ -20,13 +20,17 @@ class Region:
         color,
         num_healthy_agents,
         sick_agents_arr,
+        wealth,
         has_airport,
+        close_airport,
         viruses,
     ):
         self.id = next(Region.id_obj)
         self.vertices = vertices
         self.name = name
         self.color = color
+        self.wealth = wealth
+        self.close_airport = 2 if close_airport is None else close_airport
         self.agents_pos = None
         self.agents = []
         self.polygon = Polygon(np.array(vertices))
@@ -35,9 +39,14 @@ class Region:
         self._generate_airport(has_airport)
         self._generate_agents(num_healthy_agents)
         self._generate_sick_agents(sick_agents_arr, viruses)
+        for agent in self.agents:
+            agent.age = random.randint(0, 150)
         self.make_pos_dir()
 
-    def step(self):
+    def step(self, birth=0):
+        # agents birth
+        self._generate_agents(birth)
+
         # agents moving
         for agent in self.agents:
             agent.step()
@@ -122,7 +131,11 @@ class Region:
                             neighbor.set_sickness(virus)
 
     def get_passengers(self, percent):
-        if self.airport is None:
+        if self.airport is None or len(self.agents) == 0:
+            return []
+        infected = self.statistic.get_sick()
+        population = len(self.agents)
+        if infected / population >= self.close_airport:
             return []
         num_passengers = math.floor(percent * len(self.agents))
         passengers = []
