@@ -5,25 +5,33 @@
       "name": "Poland",
       "vertices": [[0,0], [150, 30] ,[300,0], [300, 100], [50, 100], [0,0]],
       "color": "red",
-      "number_of_healthy_agents": 30,
+      "number_of_healthy_agents": 40,
       "//infected_agents_comment": "array of Tuples [number of infected agents, virus name]",
-      "number_of_infected_agents": [[1, "Covid"]]
+      "number_of_infected_agents": [[20, "Covid"]]
     },{
       "name": "Germany",
       "vertices": [[310,0],[460,0], [460, 150], [310, 150], [310,0]],
       "color": "blue",
-      "number_of_healthy_agents": 30,
+      "number_of_healthy_agents": 100,
       "//infected_agents_comment": "array of Tuples [number of infected agents, virus name]",
-      "number_of_infected_agents": [[1, "Covid"]]
+      "number_of_infected_agents": [[30, "Covid"], [20, "Flu"]]
     }],
     "//Virus configuration": "Below you configure viruses - default numer of viruses is 1, sick time and immunity time is in steps, death odds in %",
     "viruses": [{
       "name": "Covid",
-      "death_odds": 15,
-      "sick_time": 5,
-      "immunity_time": 5,
+      "death_odds": 4,
+      "sick_time": 10,
+      "immunity_time": 30,
       "infection_chance": 50,
       "infection_distance": 10
+    },
+    {
+      "name": "Flu",
+      "death_odds": 0,
+      "sick_time": 10,
+      "immunity_time": 5,
+      "infection_chance": 80,
+      "infection_distance": 15
     }]
   }
 }

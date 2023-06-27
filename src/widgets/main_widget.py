@@ -1,6 +1,14 @@
-from PyQt5.QtWidgets import QHBoxLayout, QPushButton, QSpinBox, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import (
+    QGroupBox,
+    QHBoxLayout,
+    QPushButton,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
+)
 
 from utils import AutomateSteps
+from widgets.charts_widget import ChartsWidget
 from widgets.simulation_widget import SimulationWidget
 from world.region import Region
 from world.virus import Virus
@@ -12,12 +20,18 @@ class MainWidget(QWidget):
         super().__init__()
 
         self.config = config
+        self.is_run = False
+        self.world = World(self.config)
 
-        self.layout = QVBoxLayout(self)
+        self.layout = QHBoxLayout(self)
+
+        self.simulation_panel = QGroupBox("Simulation")
+        self.simulation_panel_layout = QVBoxLayout(self.simulation_panel)
+
         self.simulation_widget = SimulationWidget()
-        self.layout.addWidget(self.simulation_widget)
+        self.simulation_panel_layout.addWidget(self.simulation_widget)
 
-        self.automat = AutomateSteps(self.step, self.restart_world)
+        self.automat = AutomateSteps(self.step_world, self.restart_world)
         self.control_panel = QHBoxLayout()
 
         self.interval_box = QSpinBox()
@@ -36,10 +50,16 @@ class MainWidget(QWidget):
         self.control_panel.addWidget(self.start_button)
         self.control_panel.addWidget(self.restart_button)
 
-        self.layout.addLayout(self.control_panel)
+        self.simulation_panel_layout.addLayout(self.control_panel)
+        self.simulation_widget.plot_state(self.world.get_regions())
 
-        self.is_run = False
-        self.restart_world()
+        self.statistic_panel = QGroupBox("Statistics")
+        self.statistic_panel_layout = QVBoxLayout(self.statistic_panel)
+        self.charts_widget = ChartsWidget(self.world.statistic)
+        self.statistic_panel_layout.addWidget(self.charts_widget)
+
+        self.layout.addWidget(self.simulation_panel, stretch=2)
+        self.layout.addWidget(self.statistic_panel, stretch=1)
 
     def start_pause(self):
         if self.is_run:
@@ -55,12 +75,12 @@ class MainWidget(QWidget):
             self.start_button.setText("PAUSE")
         self.is_run = not self.is_run
 
+    def step_world(self):
+        self.world.step()
+        self.simulation_widget.plot_state(self.world.get_regions())
+        self.charts_widget.plot_statistics()
+
     def restart_world(self):
-        self.world = World(self.config)
-
+        self.world.restart()
         self.simulation_widget.plot_state(self.world.get_regions())
-
-    def step(self):
-        for region in self.world.get_regions():
-            region.step()
-        self.simulation_widget.plot_state(self.world.get_regions())
+        self.charts_widget.restart_statistics(self.world.statistic)

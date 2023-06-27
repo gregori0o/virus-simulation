@@ -4,6 +4,7 @@ import random
 import numpy as np
 from shapely.geometry import Point, Polygon
 
+from stats.region_stat import RegionStatistic
 from world.agent import Agent
 
 
@@ -20,19 +21,19 @@ class Region:
         self.agents_pos = None
         self.agents = []
         self.polygon = Polygon(np.array(vertices))
+        self.statistic = RegionStatistic()
 
         self._generate_agents(num_healthy_agents)
         self._generate_sick_agents(sick_agents_arr, viruses)
         self.make_pos_dir()
 
     def step(self):
-        # infection method - can be moved under agents step
-        self.infect()
-
         # agents moving
         for agent in self.agents:
             agent.step()
+
         self.make_pos_dir()
+        self.infect()
 
     def make_pos_dir(self):
         self.agents_pos = {}
@@ -86,18 +87,19 @@ class Region:
         for agent in self.agents:
             # if agent is NOT sick - continue iteration
             if agent.is_agent_sick():
-                if agent.virus is None:
+                if not agent.sick_info:
                     raise "Agent is sick without having virus"
 
                 # maybe it's better to iterate over agants again and check their position?
-                self.infect_by_position(agent)
+                for _, virus in agent.sick_info.values():
+                    self.infect_by_position(agent, virus)
 
-    def infect_by_position(self, agent):
+    def infect_by_position(self, agent, virus):
         x, y = agent.pos
-        infection_distance = agent.virus.infection_distance
+        infection_distance = agent.sick_info[virus.name][1].infection_distance
         for i in range(max(0, x - infection_distance), x + infection_distance + 1):
             for j in range(max(0, y - infection_distance), y + infection_distance + 1):
                 for neighbor in self.agents_pos.get((i, j), []):
-                    if not neighbor.is_agent_sick():
-                        if agent.calculate_infection(neighbor):
-                            neighbor.set_sickness(agent.virus)
+                    if not neighbor.is_agent_sick(virus.name):
+                        if agent.calculate_infection(neighbor, virus.name):
+                            neighbor.set_sickness(virus)
