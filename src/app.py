@@ -6,9 +6,9 @@ from PyQt5.QtWidgets import QApplication
 from widgets.main_window import MainWindow
 
 
-def main():
+def main(conf_file):
     app = QApplication(sys.argv)
-    with open("configuration.json", "r") as f:
+    with open(conf_file, "r") as f:
         config = json.load(f)
     window = MainWindow(config)  # noqa
 
@@ -16,4 +16,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    conf_file = sys.argv[1] if len(sys.argv) > 1 else "configurations/base.json"
+    main(conf_file)
