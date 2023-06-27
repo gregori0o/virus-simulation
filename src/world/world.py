@@ -1,3 +1,4 @@
+import json
 from random import shuffle
 
 from stats.global_stat import GlobalStatistic
@@ -6,13 +7,18 @@ from world.virus import Virus
 
 
 class World:
-    def __init__(self, config):
+    def __init__(self, config, simulation_id):
         self.config = config
+        self.simulation_id = simulation_id
         if self.config.get("flights"):
             self.flights_frequency = self.config["flights"]["frequency"]
         else:
             self.flights_frequency = 0
         self.restart()
+
+    def save_statistics(self):
+        with open(f"results/stats_{self.step_num}_{self.simulation_id}.json", "w") as f:
+            json.dump(self.statistic.__dict__, f)
 
     def get_regions(self):
         return self.regions
@@ -40,7 +46,9 @@ class World:
                     region["color"],
                     region["number_of_healthy_agents"],
                     region["number_of_infected_agents"],
+                    region.get("wealth_percent"),
                     region.get("has_airport"),
+                    region.get("close_airport"),
                     self.viruses,
                 )
             )
@@ -60,7 +68,10 @@ class World:
 
     def step(self):
         for region in self.regions:
-            region.step()
+            birth = 0
+            if self.step_num % 10 == 0:
+                birth = int(len(region.agents)) // 10
+            region.step(birth)
 
         if self.flights_frequency > 0 and self.step_num % self.flights_frequency == 0:
             passengers = []
@@ -85,3 +96,6 @@ class World:
         self.statistic.sum_step(self.step_num)
 
         self.step_num += 1
+
+        if self.step_num % 100 == 0:
+            self.save_statistics()

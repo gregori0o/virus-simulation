@@ -1,3 +1,6 @@
+import json
+from datetime import datetime
+
 from PyQt5.QtWidgets import QDesktopWidget, QHBoxLayout, QMainWindow, QWidget
 
 from widgets.main_widget import MainWidget
@@ -19,6 +22,10 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self._centralWidget)
         self._centralWidget.setLayout(self.generalLayout)
 
-        self.generalLayout.addWidget(MainWidget(config["main_widget"]))
+        simulation_id = datetime.now().isoformat()
+        with open(f"results/configuration_{simulation_id}.json", "w") as f:
+            json.dump(config, f)
+
+        self.generalLayout.addWidget(MainWidget(config["main_widget"], simulation_id))
 
         self.show()
